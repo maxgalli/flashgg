@@ -249,7 +249,7 @@ void PhotonIdUtils::setupMVA( const string &xmlfilenameEB, const string &xmlfile
     phoIdMva_EE_->AddVariable( "scEta",             &phoIdMva_ScEta_ );
     phoIdMva_EE_->AddVariable( "rho",                  &phoIdMva_rho_ );
     phoIdMva_EE_->AddVariable( "esEffSigmaRR",   &phoIdMva_ESEffSigmaRR_ );
-    if(is2017) 
+    if(is2017)
         phoIdMva_EE_->AddVariable( "esEnergyOverRawE",   &phoIdMva_esEnovSCRawEn_ );
     else
         phoIdMva_EE_->AddVariable( "esEnergy/SCRawE",   &phoIdMva_esEnovSCRawEn_ );
@@ -264,7 +264,8 @@ float PhotonIdUtils::computeMVAWrtVtx( /*edm::Ptr<flashgg::Photon>& photon,*/
     const double rho, const double eA, const std::vector<double> _phoIsoPtScalingCoeff, const double _phoIsoCutoff )
 {
 
-    phoIdMva_SCRawE_          = photon.superCluster()->rawEnergy();
+    // Temporarily change rawEnergy to super cluster Energy
+    phoIdMva_SCRawE_          = photon.superCluster()->energy();
     phoIdMva_R9_              = photon.full5x5_r9();
     phoIdMva_S4_              = photon.s4();
     phoIdMva_covIEtaIEta_     = photon.full5x5_sigmaIetaIeta();
@@ -278,22 +279,22 @@ float PhotonIdUtils::computeMVAWrtVtx( /*edm::Ptr<flashgg::Photon>& photon,*/
 
     //    double eA = _effectiveAreas.getEffectiveArea( abs(photon.superCluster()->eta()) );
     double phoIsoPtScalingCoeffVal = 0;
-    if( photon.isEB() ) 
+    if( photon.isEB() )
         phoIsoPtScalingCoeffVal = _phoIsoPtScalingCoeff.at(0); // barrel case
     else
         phoIsoPtScalingCoeffVal =  _phoIsoPtScalingCoeff.at(1); //endcap case
-    
+
     double phoIsoCorr = photon.pfPhoIso03() - eA*(rho) - phoIsoPtScalingCoeffVal*photon.pt();
-    
+
     phoIdMva_pfPhoIso03Corr_ = TMath::Max(phoIsoCorr, _phoIsoCutoff);
-    
+
     phoIdMva_pfChgIso03_      = photon.pfChgIso03WrtVtx( vtx );
     phoIdMva_pfChgIso03worst_ = photon.pfChgIsoWrtWorstVtx03();
     phoIdMva_ScEta_           = photon.superCluster()->eta();
     phoIdMva_rho_             = rho; // we don't want to add the event-based rho as flashgg::photon member
     phoIdMva_ESEffSigmaRR_    = photon.esEffSigmaRR();
     phoIdMva_esEnovSCRawEn_   = photon.superCluster()->preshowerEnergy()/photon.superCluster()->rawEnergy();
-        
+
     if( photon.isEB() )      { phoIdMva = phoIdMva_EB_; }
     else if( photon.isEE() ) { phoIdMva = phoIdMva_EE_; }
 
@@ -301,24 +302,24 @@ float PhotonIdUtils::computeMVAWrtVtx( /*edm::Ptr<flashgg::Photon>& photon,*/
     return mvavalue;
 }
 
-float PhotonIdUtils::computeCorrectPhoIso(    
+float PhotonIdUtils::computeCorrectPhoIso(
                                           flashgg::Photon &photon,
                                           const double rho, const double eA, const std::vector<double> _phoIsoPtScalingCoeff, const double _phoIsoCutoff )
 {
     //pho iso corr in 2016 for endcap
     pfPhoIso03Corr_ = photon.pfPhoIso03();
-     
+
     //    double eA = _effectiveAreas.getEffectiveArea( abs(photon.superCluster()->eta()) );
     double phoIsoPtScalingCoeffVal = 0;
-    if( photon.isEB() ) 
+    if( photon.isEB() )
         phoIsoPtScalingCoeffVal = _phoIsoPtScalingCoeff.at(0); // barrel case
     else
         phoIsoPtScalingCoeffVal =  _phoIsoPtScalingCoeff.at(1); //endcap case
-    
+
     double phoIsoCorr = photon.pfPhoIso03() - eA*(rho) - phoIsoPtScalingCoeffVal*photon.pt();
-    
+
     pfPhoIso03Corr_ = TMath::Max(phoIsoCorr, _phoIsoCutoff);
-    
+
     float pfPhoIso03Corr = pfPhoIso03Corr_;
     return pfPhoIso03Corr;
 }
