@@ -91,7 +91,13 @@ Categories
 """
 import flashgg.Taggers.dumperConfigTools as cfgTools
 
-variables = ["mass", "pt", "eta", "leadPt := leadingPhoton.pt", "subleadPt := subLeadingPhoton.pt"]
+variables = [
+            "mass", "pt", "eta", "leadPt := leadingPhoton.pt", "subleadPt := subLeadingPhoton.pt", "vtx_z := vtx().z()", "gen_vtx_z := genPV().z()",
+            "lead_mva := leadingView.phoIdMvaWrtChosenVtx", "sublead_mva := subLeadingView.phoIdMvaWrtChosenVtx",
+            "lead_eta := leadingPhoton.eta", "sublead_eta := subLeadingPhoton.eta",
+            "lead_phi := leadingPhoton.phi", "sublead_phi := subLeadingPhoton.phi",
+            "sigma_m := 0.5*sqrt(leadingPhoton.sigEOverE*leadingPhoton.sigEOverE + subLeadingPhoton.sigEOverE*subLeadingPhoton.sigEOverE)"
+            ]
 
 cfgTools.addCategories(
         process.diphotonDumper,
